@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{YEAR}} {{MAKE}} {{MODEL}} — VIN Report</title>
+<style>
+ :root {
+ --ink: #1a1a1a; --muted: #666; --line: #e5e5e5; --bg: #fafafa;
+ --good: #2d7a3e; --warn: #c47a00; --bad: #b3261e; --accent: #0b4f8a;
+ }
+ * { box-sizing: border-box; }
+ body {
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+ color: var(--ink); background: var(--bg); line-height: 1.6;
+ max-width: 820px; margin: 0 auto; padding: 2rem 1.25rem 4rem;
+ }
+ header { border-bottom: 2px solid var(--ink); padding-bottom: 1rem; margin-bottom: 2rem; }
+ h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }
+ .vin { font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--muted); font-size: 0.9rem; }
+ .meta { color: var(--muted); font-size: 0.85rem; margin-top: 0.5rem; }
+ h2 { margin-top: 2.5rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--line); font-size: 1.25rem; }
+ h3 { margin-top: 1.5rem; font-size: 1.05rem; }
+ .verdict { background: white; border-left: 4px solid var(--accent); padding: 1rem 1.25rem; margin: 1.5rem 0; border-radius: 4px; }
+ .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+ @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+ .card { background: white; border: 1px solid var(--line); padding: 1rem; border-radius: 4px; }
+ .pill { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 99px; font-size: 0.78rem; font-weight: 600; margin-left: 0.4rem; }
+ .pill-good { background: #e3f3e6; color: var(--good); }
+ .pill-warn { background: #fdf1d9; color: var(--warn); }
+ .pill-bad { background: #fbe2e0; color: var(--bad); }
+ ul.issues { padding-left: 1.2rem; }
+ ul.issues li { margin-bottom: 0.6rem; }
+ .severity { font-weight: 600; }
+ .sev-major { color: var(--bad); }
+ .sev-moderate { color: var(--warn); }
+ .sev-minor { color: var(--muted); }
+ table { width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.92rem; }
+ th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--line); }
+ th { background: #f0f0f0; font-weight: 600; }
+ .price-big { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+ .checklist li { margin-bottom: 0.4rem; }
+ .walk-away { background: #fff5f4; border-left: 4px solid var(--bad); padding: 1rem; border-radius: 4px; }
+ .confidence { font-size: 0.78rem; color: var(--muted); font-style: italic; }
+ .sources { font-size: 0.82rem; color: var(--muted); }
+ .sources a { color: var(--muted); }
+ .disclaimer { font-size: 0.82rem; color: var(--muted); background: #fff8e6; border: 1px solid #f0d98a; padding: 0.75rem 1rem; border-radius: 4px; margin-top: 1rem; }
+ .stale-notice { font-size: 0.85rem; color: var(--warn); margin-top: 0.5rem; }
+ footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: 0.8rem; color: var(--muted); }
+ @media print { body { background: white; padding: 0.5in; } .card, .verdict { break-inside: avoid; } }
+</style>
+</head>
+<body>
+
+<header>
+ <h1>{{YEAR}} {{MAKE}} {{MODEL}} {{TRIM}}</h1>
+ <div class="vin">VIN: {{VIN}}</div>
+ <div class="meta">
+ Report generated: {{GENERATED_DATE}} &middot;
+ Engine: {{ENGINE}} &middot;
+ Drivetrain: {{DRIVETRAIN}} &middot;
+ Assembly: {{PLANT}}
+ </div>
+</header>
+
+<section class="verdict">
+ <h2 style="margin-top:0;border:none;padding:0;">Verdict</h2>
+ <p><strong>{{VERDICT_HEADLINE}}</strong></p>
+ <p>{{VERDICT_SUMMARY}}</p>
+</section>
+
+<section>
+ <h2>At a Glance</h2>
+ <div class="grid-2">
+ <div class="card">
+ <h3 style="margin-top:0;">Reliability <span class="pill pill-{{RELIABILITY_PILL}}">{{RELIABILITY_RATING}}</span></h3>
+ <p>{{RELIABILITY_BLURB}}</p>
+ </div>
+ <div class="card">
+ <h3 style="margin-top:0;">Fair Price</h3>
+ <div class="price-big">${{FAIR_PRICE}}</div>
+ <p style="margin:0.25rem 0 0;color:var(--muted);font-size:0.9rem;">
+ Private party: ${{PP_LOW}}–${{PP_HIGH}}<br>
+ Dealer retail: ${{DR_LOW}}–${{DR_HIGH}}
+ </p>
+ </div>
+ <div class="card">
+ <h3 style="margin-top:0;">Safety</h3>
+ <p>NHTSA: {{NHTSA_STARS}} &middot; IIHS: {{IIHS_RATING}}</p>
+ <p style="margin:0;color:var(--muted);font-size:0.9rem;">
+ Open recalls: <strong>{{OPEN_RECALL_COUNT}}</strong>
+ </p>
+ </div>
+ <div class="card">
+ <h3 style="margin-top:0;">5-Year Cost</h3>
+ <div class="price-big">${{FIVE_YEAR_COST}}</div>
+ <p style="margin:0.25rem 0 0;color:var(--muted);font-size:0.9rem;">
+ Real-world MPG: {{MPG_COMBINED}} combined
+ </p>
+ </div>
+ </div>
+</section>
+
+<section>
+ <h2>Pros</h2>
+ <ul>{{PROS_LIST}}</ul>
+ <h2>Cons</h2>
+ <ul>{{CONS_LIST}}</ul>
+</section>
+
+<section>
+ <h2>Known Issues for This Generation/Engine</h2>
+ <p class="confidence">Confidence: {{RELIABILITY_CONFIDENCE}}</p>
+ <ul class="issues">{{KNOWN_ISSUES_LIST}}</ul>
+</section>
+
+<section>
+ <h2>Recalls Affecting This Vehicle</h2>
+ <div class="disclaimer">
+ NHTSA reports recalls by year/make/model. Whether <em>this specific VIN</em>
+ has had recall work performed can only be confirmed by a franchised dealer
+ using the VIN. Always verify before purchase.
+ </div>
+ {{RECALLS_TABLE}}
+</section>
+
+<section>
+ <h2>Pricing Analysis</h2>
+ <p class="confidence">Based on {{LISTINGS_COUNT}} comparable listings. Confidence: {{PRICING_CONFIDENCE}}.</p>
+ <p class="stale-notice">⚠ Pricing data goes stale quickly. Re-verify if this report is more than 30 days old.</p>
+ <h3>Comparable Active Listings</h3>
+ {{LISTINGS_TABLE}}
+ <h3>Negotiation Anchors</h3>
+ <p>{{NEGOTIATION_NOTES}}</p>
+ <h3>Price Trend (6-month)</h3>
+ <p>{{PRICE_TREND}}</p>
+</section>
+
+<section>
+ <h2>5-Year Cost of Ownership</h2>
+ <table>
+ <tr><th>Category</th><th>Estimate</th></tr>
+ <tr><td>Fuel ({{ANNUAL_MILES}} mi/yr × {{MPG_COMBINED}} mpg)</td><td>${{FUEL_5YR}}</td></tr>
+ <tr><td>Insurance</td><td>${{INSURANCE_5YR}}</td></tr>
+ <tr><td>Scheduled maintenance</td><td>${{MAINTENANCE_5YR}}</td></tr>
+ <tr><td>Expected repairs</td><td>${{REPAIRS_5YR}}</td></tr>
+ <tr><td>Tires</td><td>${{TIRES_5YR}}</td></tr>
+ <tr><td>Depreciation ({{DEPRECIATION_PCT}}%)</td><td>${{DEPRECIATION_5YR}}</td></tr>
+ <tr style="font-weight:700;background:#f0f0f0;"><td>Total</td><td>${{FIVE_YEAR_COST}}</td></tr>
+ </table>
+</section>
+
+<section>
+ <h2>Owner Sentiment</h2>
+ <p>{{SENTIMENT_SUMMARY}}</p>
+ {{OWNER_QUOTES}}
+</section>
+
+<section>
+ <h2>Theft, Parts, and Other Considerations</h2>
+ <ul>
+ <li><strong>Theft rate:</strong> {{THEFT_RATE}}. {{THEFT_NOTES}}</li>
+ <li><strong>Parts availability:</strong> {{PARTS_AVAILABILITY}}</li>
+ <li><strong>Common wear-part costs:</strong> {{WEAR_PART_COSTS}}</li>
+ </ul>
+</section>
+
+<section>
+ <h2>Pre-Purchase Inspection Checklist</h2>
+ <p>Hand this to a mechanic before purchase. Items are tailored to known issues for this vehicle.</p>
+ <ul class="checklist">{{INSPECTION_CHECKLIST}}</ul>
+ <h3>Questions to Ask the Seller</h3>
+ <ul class="checklist">{{SELLER_QUESTIONS}}</ul>
+</section>
+
+<section>
+ <h2 style="color:var(--bad);">Walk-Away Signals</h2>
+ <div class="walk-away">
+ <ul style="margin:0;">{{WALK_AWAY_LIST}}</ul>
+ </div>
+</section>
+
+<section>
+ <h2>Things This Report Cannot Tell You</h2>
+ <ul>
+ <li><strong>Accident & title history</strong> — run Carfax or AutoCheck on this VIN</li>
+ <li><strong>Recall completion status for this specific VIN</strong> — verify with a franchised {{MAKE}} dealer</li>
+ <li><strong>Service history</strong> — request maintenance records from the seller</li>
+ <li><strong>Current mechanical condition</strong> — get a pre-purchase inspection</li>
+ <li><strong>Odometer accuracy</strong> — cross-reference with service records and inspection stickers</li>
+ </ul>
+</section>
+
+<section class="sources">
+ <h2 style="color:var(--muted);">Sources</h2>
+ {{SOURCES_LIST}}
+</section>
+
+<footer>
+ Report generated {{GENERATED_DATE}} by an automated research agent. Pricing,
+ recall, and reliability data should be independently verified before any
+ purchase decision. Not a substitute for a professional pre-purchase inspection.
+</footer>
+
+</body>
+</html>
